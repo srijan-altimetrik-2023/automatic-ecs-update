@@ -29,7 +29,7 @@ resource "aws_ecs_task_definition" "example_task_definition" {
 [
   {
     "name": "example-container",
-    "image": "${aws_ecr_repository.example_repository.repository_url}:latest",
+    "image": "${aws_ecr_repository.ami-automate-latest.repository_url}:latest",
     "portMappings": [
       {
         "containerPort": 80,
@@ -55,8 +55,8 @@ DEFINITION
 }
 
 # Create ECR repository
-resource "aws_ecr_repository" "example_repository" {
-  name = "latest-ami-update-2023"
+resource "aws_ecr_repository" "ami-automate-latest" {
+  name = "ami-automate-latest"
   tags = {
       Environment = "Prod"
       Application = "Testing"
@@ -187,5 +187,46 @@ resource "aws_ecs_service" "example_service" {
       Project = "CloudOps"
       Owner = "mnageti@altimetrik.com"
       Name = "tf_ecs_service"
+  }
+}
+
+resource "aws_iam_instance_profile" "test_profile" {
+  name  = "test_profile"
+  role = "${aws_iam_role.ec2_role.name}"
+}
+
+resource "aws_iam_role" "ec2_role" {
+  name = "ec2-role"
+  assume_role_policy = "${data.aws_iam_policy_document.assume-role-policy.json}"
+}
+
+resource "aws_instance" "my-test-instance" {
+  ami             = "ami-057752b3f1d6c4d6c"
+  instance_type   = "t2.micro"
+  iam_instance_profile = "${aws_iam_instance_profile.test_profile.name}"
+
+  tags = {
+    Environment = "Prod"
+      Application = "Testing"
+      Project = "CloudOps"
+      Owner = "mnageti@altimetrik.com"
+      Name = "tf_ec2_service"
+  }
+  volume_tags = {
+      Environment = "Prod"
+      Application = "Testing"
+      Project = "CloudOps"
+      Owner = "mnageti@altimetrik.com"
+      Name = "tf_ebs"
+}
+}
+data "aws_iam_policy_document" "assume-role-policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
   }
 }
