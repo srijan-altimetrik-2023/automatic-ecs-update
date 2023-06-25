@@ -37,4 +37,4 @@ creation_timestamp = response['imageDetails'][0]['imagePushedAt']
 creation_date = creation_timestamp.date()
 
 # Print the image creation date
-print(f"Image creation date: {creation_date}")
+print(f"{creation_date}")
