@@ -22,7 +22,7 @@ resource "aws_ecs_cluster" "ecs_cluster" {
 # Create an EC2 instance
 resource "aws_instance" "ecs_instance" {
   instance_type = "t2.micro"
-  ami           = "ami-057752b3f1d6c4d6c"  # Replace with the desired EC2 instance AMI ID
+  ami           = "ami-0f5ee92e2d63afc18"  # Replace with the desired EC2 instance AMI ID
   subnet_id     = "subnet-0f149076385f14b45"  # Replace with the desired subnet ID
 
   tags = {
