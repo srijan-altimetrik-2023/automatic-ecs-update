@@ -1,10 +1,25 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "4.45.0"
+    }
+  }
+}
 provider "aws" {
-  region = "us-east-1"  # Replace with your desired AWS region
+  region = "ap-south-1"
 }
 
 # Create ECS cluster
 resource "aws_ecs_cluster" "srijan-ecs" {
   name = "srijan-ecs"
+  tags = {
+      Environment = "Prod"
+      Application = "Testing"
+      Project = "CloudOps"
+      Owner = "mnageti@altimetrik.com"
+      Name = "tf_ecs"
+  }
 }
 
 # Create ECS task definition
@@ -27,20 +42,33 @@ resource "aws_ecs_task_definition" "example_task_definition" {
   }
 ]
 DEFINITION
-  requires_compatibilities = ["FARGATE"]
   network_mode            = "awsvpc"
   execution_role_arn      = aws_iam_role.task_execution_role.arn
   task_role_arn           = aws_iam_role.task_role.arn
+  tags = {
+      Environment = "Prod"
+      Application = "Testing"
+      Project = "CloudOps"
+      Owner = "mnageti@altimetrik.com"
+      Name = "tf_ecs_task"
+  }
 }
 
 # Create ECR repository
 resource "aws_ecr_repository" "example_repository" {
-  name = "example-repo"
+  name = "latest-ami-update-2023"
+  tags = {
+      Environment = "Prod"
+      Application = "Testing"
+      Project = "CloudOps"
+      Owner = "mnageti@altimetrik.com"
+      Name = "tf_ecr"
+  }
 }
 
 # Create IAM role for task execution
 resource "aws_iam_role" "task_execution_role" {
-  name = "example-task-execution-role"
+  name = "task-execution-role"
   assume_role_policy = <<POLICY
 {
   "Version": "2012-10-17",
@@ -55,6 +83,13 @@ resource "aws_iam_role" "task_execution_role" {
   ]
 }
 POLICY
+ tags = {
+      Environment = "Prod"
+      Application = "Testing"
+      Project = "CloudOps"
+      Owner = "mnageti@altimetrik.com"
+      Name = "tf_iam"
+  }
 }
 
 # Attach policies to the task execution role (e.g., for logging)
@@ -80,6 +115,13 @@ resource "aws_iam_role" "task_role" {
   ]
 }
 POLICY
+ tags = {
+      Environment = "Prod"
+      Application = "Testing"
+      Project = "CloudOps"
+      Owner = "mnageti@altimetrik.com"
+      Name = "tf_iam_role"
+  }
 }
 
 # Attach policies to the task role (e.g., for accessing other AWS services)
@@ -88,17 +130,62 @@ resource "aws_iam_role_policy_attachment" "task_role_attachment" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
+resource "aws_default_vpc" "default_vpc" {
+  tags = {
+      Environment = "Prod"
+      Application = "Testing"
+      Project = "CloudOps"
+      Owner = "mnageti@altimetrik.com"
+      Name = "tf_vpc"
+  }
+}
+
+# Providing a reference to our default subnets
+resource "aws_default_subnet" "default_subnet" {
+  availability_zone = "ap-south-1a"
+  tags = {
+      Environment = "Prod"
+      Application = "Testing"
+      Project = "CloudOps"
+      Owner = "mnageti@altimetrik.com"
+      Name = "tf_subnet"
+  }
+}
+
+resource "aws_security_group" "service_security_group" {
+  ingress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0 # Allowing any incoming port
+    to_port     = 0 # Allowing any outgoing port
+    protocol    = "-1" # Allowing any outgoing protocol
+    cidr_blocks = ["0.0.0.0/0"] # Allowing traffic out to all IP addresses
+  }
+}
+
 # Create ECS service
 resource "aws_ecs_service" "example_service" {
   name            = "example-service"
-  cluster         = aws_ecs_cluster.example_cluster.id
+  cluster         = aws_ecs_cluster.srijan-ecs.id
   task_definition = aws_ecs_task_definition.example_task_definition.arn
-  desired_count   = 1
-
+  desired_count   = 2
   deployment_minimum_healthy_percent = 100
   deployment_maximum_percent         = 200
 
   network_configuration {
-    security_groups = [aws_security_group.example_security_group.id]
-    subnets         = [aws_subnet.example_subnet.id
-
+    subnets = ["${aws_default_subnet.default_subnet.id}"]
+    security_groups  = ["${aws_security_group.service_security_group.id}"]
+ }
+ tags = {
+      Environment = "Prod"
+      Application = "Testing"
+      Project = "CloudOps"
+      Owner = "mnageti@altimetrik.com"
+      Name = "tf_ecs_service"
+  }
+}
