@@ -43,31 +43,3 @@ resource "aws_instance" "ecs_instance" {
   vpc_security_group_ids = ["sg-0b2b80b19887446b4"]  # Replace with the desired security group ID
 }
 
-
-(* 
-
-provider "aws" {
-  region = "ap-south-1" 
-}
-
-resource "aws_instance" "instance" {
-  ami = "ami-057752b3f1d6c4d6c"
-  instance_type = "t2.micro"
-  tags = {
-      Environment = "Prod"
-      Application = "Testing"
-      Project = "CloudOps"
-      Owner = "mnageti@altimetrik.com"
-      Name = "tf_ec2"
-  }
-volume_tags = {
-  Environment = "Prod"
-      Application = "Testing"
-      Project = "CloudOps"
-      Owner = "mnageti@altimetrik.com"
-      Name = "tf_ebs"
-}
-  lifecycle {
-    create_before_destroy = true
-  }
-} *)
