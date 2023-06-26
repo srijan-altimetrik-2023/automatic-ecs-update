@@ -8,7 +8,7 @@ aws_secret_access_key = '5HHt423zsVJi53SfXebzVfQ5A7yLU9t3WEHGwR+x'
 region_name = 'ap-south-1'
 
 # Specify the ECR repository details
-repository_name = 'ami-automate-latest'
+repository_name = 'ami-nginx'
 image_tag = 'latest'
 
 # Create a session using your AWS credentials
