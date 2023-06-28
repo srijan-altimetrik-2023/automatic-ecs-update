@@ -56,6 +56,9 @@ resource "aws_instance" "instance" {
       Name = "SCP_test"
   }
   vpc_security_group_ids = ["sg-01e24941edc06d626"]
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_ecs_task_definition" "my_task_definition" {
