@@ -55,7 +55,7 @@ resource "aws_instance" "instance" {
       Owner = "pawkumar@altimetrik.com"
       Name = "SCP_test"
   }
-  vpc_security_group_ids = sg-01e24941edc06d626
+  vpc_security_group_ids = ["sg-01e24941edc06d626"]
 }
 
 resource "aws_ecs_task_definition" "my_task_definition" {
