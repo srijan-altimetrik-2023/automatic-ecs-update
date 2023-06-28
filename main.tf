@@ -44,15 +44,15 @@ resource "aws_instance" "ecs_instance" {
       Environment = "Prod"
       Application = "Testing"
       Project = "CloudOps"
-      Owner = "mnageti@altimetrik.com"
-      Name = "tf_ecs_instance"
+      Owner = "pawkumar@altimetrik.com"
+      Name = "SCP_test"
   }
   volume_tags = {
-    Environment = "Prod"
+        Environment = "Prod"
         Application = "Testing"
         Project = "CloudOps"
-        Owner = "mnageti@altimetrik.com"
-        Name = "tf_ebs"
+        Owner = "pawkumar@altimetrik.com"
+        Name = "SCP_test"
   }
   lifecycle {
     create_before_destroy = true
