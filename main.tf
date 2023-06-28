@@ -2,7 +2,7 @@
 terraform {
   backend "s3" {
     bucket     = "ami-automate-s3"
-    key        = "state.txt"
+    key        = "state_updated.txt"
     region = "us-east-1"
     access_key = "AKIASYQ3HBXP4WF6HPY5"
     secret_key = "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"
