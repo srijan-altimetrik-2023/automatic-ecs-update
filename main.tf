@@ -20,6 +20,13 @@ resource "aws_vpc" "my_vpc" {
 # Create an ECS cluster
 resource "aws_ecs_cluster" "my_cluster" {
   name = "my-cluster"
+  tags = {
+        Environment = "Prod"
+        Application = "Testing"
+        Project = "CloudOps"
+        Owner = "mnageti@altimetrik.com"
+        Name = "tf_my_cluster"
+    }
 }
 
 # Create an EC2 instance
@@ -40,6 +47,13 @@ resource "aws_instance" "my_instance" {
 }
 resource "aws_ecs_task_definition" "my_task_definition" {
   family                   = "my-task-family"
+ tags = {
+      Environment = "Prod"
+      Application = "Testing"
+      Project = "CloudOps"
+      Owner = "mnageti@altimetrik.com"
+      Name = "tf_my_task_definition"
+  }
   container_definitions    = <<EOF
   [
     {
@@ -62,6 +76,13 @@ resource "aws_ecs_service" "my_service" {
   cluster         = aws_ecs_cluster.my_cluster.id
   task_definition = aws_ecs_task_definition.my_task_definition.arn
   desired_count   = 1
+   tags = {
+      Environment = "Prod"
+      Application = "Testing"
+      Project = "CloudOps"
+      Owner = "mnageti@altimetrik.com"
+      Name = "tf_my_service"
+  }
   
   # Other service configuration options
 }
