@@ -1,4 +1,14 @@
 # Define the provider and region
+terraform {
+  backend "s3" {
+    bucket     = "ami-automate-s3"
+    key        = "state.txt"
+    region = "ap-south-1"
+    access_key = "AKIASYQ3HBXP4WF6HPY5"
+    secret_key = "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"
+  }
+}
+
 provider "aws" {
   region = "ap-south-1"
 }
