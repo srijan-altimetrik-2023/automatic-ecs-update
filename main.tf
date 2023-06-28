@@ -40,20 +40,21 @@ resource "aws_ecs_cluster" "my_cluster" {
 resource "aws_instance" "instance" {
   ami = "ami-057752b3f1d6c4d6c"
   instance_type = "t2.micro"
+  vpc_security_group_ids = ["sg-0b965d49bccd5c4ef"] 
   tags = {
       Environment = "Prod"
       Application = "Testing"
       Project = "CloudOps"
-      Owner = "mnageti@altimetrik.com"
+      Owner = "pawkumar@altimetrik.com"
       Name = "SCP_test"
   }
-volume_tags = {
+  volume_tags = {
       Environment = "Prod"
       Application = "Testing"
       Project = "CloudOps"
-      Owner = "mnageti@altimetrik.com"
+      Owner = "pawkumar@altimetrik.com"
       Name = "SCP_test"
-}
+  }
 }
 
 resource "aws_ecs_task_definition" "my_task_definition" {
