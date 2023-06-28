@@ -13,8 +13,6 @@ provider "aws" {
 }
 
 
-# Create an ECS cluster
-
 
 # Create an EC2 instance
 resource "aws_instance" "instance" {
@@ -38,6 +36,3 @@ resource "aws_instance" "instance" {
   vpc_security_group_ids = ["sg-01e24941edc06d626"]
 }
 
-  
-  # Other service configuration options
-}
