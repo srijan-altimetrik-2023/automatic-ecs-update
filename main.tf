@@ -40,7 +40,7 @@ resource "aws_ecs_cluster" "my_cluster" {
 resource "aws_instance" "instance" {
   ami = "ami-057752b3f1d6c4d6c"
   instance_type = "t2.micro"
-  subnet_id = ["subnet-04be86837ecdfbbc0"] 
+  subnet_id = "subnet-04be86837ecdfbbc0"
   tags = {
       Environment = "Prod"
       Application = "Testing"
