@@ -39,15 +39,24 @@ resource "aws_ecs_cluster" "my_cluster" {
 # Create an EC2 instance
 resource "aws_instance" "ecs_instance" {
   instance_type = "t2.micro"
-  ami           = "ami-0f5ee92e2d63afc18"  # Replace with the desired EC2 instance AMI ID
+  ami           = "ami-057752b3f1d6c4d6c"  # Replace with the desired EC2 instance AMI ID
   tags = {
       Environment = "Prod"
       Application = "Testing"
       Project = "CloudOps"
       Owner = "mnageti@altimetrik.com"
-      Name = "tf_ec2"
+      Name = "tf_ecs_instance"
   }
-  # Attach the ECS cluster instance to the cluster
+  volume_tags = {
+    Environment = "Prod"
+        Application = "Testing"
+        Project = "CloudOps"
+        Owner = "mnageti@altimetrik.com"
+        Name = "tf_ebs"
+  }
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 resource "aws_ecs_task_definition" "my_task_definition" {
   family                   = "my-task-family"
