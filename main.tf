@@ -3,14 +3,14 @@ terraform {
   backend "s3" {
     bucket     = "ami-automate-s3"
     key        = "state_updates.txt"
-    region = "us-east-1"
-    access_key = "AKIASYQ3HBXP4WF6HPY5"
-    secret_key = "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"
+    region = "ap-south-1"
+    access_key = "ASIASYQ3HBXP7LFULTGE"
+    secret_key = format("AK_%s", filebase64sha256("/D12fL/mAdAFI8HG9nKiJ5gekFiBKjagkOqRDnMe"))
   }
 }
 
 provider "aws" {
-  region = "us-east-1"
+  region = "ap-south-1"
 }
 
 # Create an EC2 instance
