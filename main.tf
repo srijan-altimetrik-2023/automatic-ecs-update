@@ -37,7 +37,7 @@ resource "aws_ecs_cluster" "my_cluster" {
 }
 
 # Create an EC2 instance
-resource "aws_instance" "my_instance" {
+resource "aws_instance" "ecs_instance" {
   instance_type = "t2.micro"
   ami           = "ami-0f5ee92e2d63afc18"  # Replace with the desired EC2 instance AMI ID
   tags = {
