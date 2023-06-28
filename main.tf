@@ -15,6 +15,13 @@ provider "aws" {
 
 resource "aws_vpc" "my_vpc" {
   cidr_block = "10.0.0.0/16"
+  tags = {
+        Environment = "Prod"
+        Application = "Testing"
+        Project = "CloudOps"
+        Owner = "mnageti@altimetrik.com"
+        Name = "tf_my_vpc"
+    }
 }
 
 # Create an ECS cluster
