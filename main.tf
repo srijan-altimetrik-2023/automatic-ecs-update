@@ -72,7 +72,7 @@ resource "aws_ecs_task_definition" "my_task_definition" {
   [
     {
       "name": "my-container",
-      "image": "nginx",
+      "image": "190109388255.dkr.ecr.ap-south-1.amazonaws.com/ami-automate-latest:142",
       "cpu": 256,
       "memory": 512,
       "portMappings": [
