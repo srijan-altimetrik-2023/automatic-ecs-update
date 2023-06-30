@@ -4,8 +4,8 @@ terraform {
     bucket     = "ami-automate-s3"
     key        = "state.txt"
     region = "ap-south-1"
-    access_key = "ASIASYQ3HBXPVO4LZNU4"
-    secret_key = "etsl7cAk4u3aQIedgT+fEuOuJq/EiVtaPIdoxsZr"
+    access_key = "ASIASYQ3HBXPUX35RUBP"
+    secret_key = "KJaCTA5iCqlQrotJVU0XuegI6fhVlrqlFHxwGd+X"
   }
 }
 
