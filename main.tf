@@ -1,25 +1,8 @@
-# Define the provider and region
-terraform {
-  backend "s3" {
-    bucket     = "ami-automate-s3"
-    key        = "state.txt"
-    region = "ap-south-1"
-  }
-}
-
-
 data "aws_availability_zones" "available_zones" {
   state = "available"
 }
 resource "aws_vpc" "default" {
   cidr_block = "10.32.0.0/16"
-  tags = {
-        Environment = "Prod"
-        Application = "Testing"
-        Project = "CloudOps"
-        Owner = "mnageti@altimetrik.com"
-        Name = "tf_m_vpc"
-    }
 }
 resource "aws_subnet" "public" {
   count                   = 2
@@ -27,13 +10,6 @@ resource "aws_subnet" "public" {
   availability_zone       = data.aws_availability_zones.available_zones.names[count.index]
   vpc_id                  = aws_vpc.default.id
   map_public_ip_on_launch = true
- tags = {
-        Environment = "Prod"
-        Application = "Testing"
-        Project = "CloudOps"
-        Owner = "mnageti@altimetrik.com"
-        Name = "tf_my_dubmer"
-    }
 }
 
 resource "aws_subnet" "private" {
@@ -41,23 +17,9 @@ resource "aws_subnet" "private" {
   cidr_block        = cidrsubnet(aws_vpc.default.cidr_block, 8, count.index)
   availability_zone = data.aws_availability_zones.available_zones.names[count.index]
   vpc_id            = aws_vpc.default.id
-tags = {
-        Environment = "Prod"
-        Application = "Testing"
-        Project = "CloudOps"
-        Owner = "mnageti@altimetrik.com"
-        Name = "tf_my_dubmer"
-    }
 }
 resource "aws_internet_gateway" "gateway" {
   vpc_id = aws_vpc.default.id
-tags = {
-        Environment = "Prod"
-        Application = "Testing"
-        Project = "CloudOps"
-        Owner = "mnageti@altimetrik.com"
-        Name = "tf_my_gt"
-    }
 }
 
 resource "aws_route" "internet_access" {
@@ -70,26 +32,12 @@ resource "aws_eip" "gateway" {
   count      = 2
   vpc        = true
   depends_on = [aws_internet_gateway.gateway]
-  tags = {
-        Environment = "Prod"
-        Application = "Testing"
-        Project = "CloudOps"
-        Owner = "mnageti@altimetrik.com"
-        Name = "tf_my_gatewaty"
-    }
 }
 
 resource "aws_nat_gateway" "gateway" {
   count         = 2
   subnet_id     = element(aws_subnet.public.*.id, count.index)
   allocation_id = element(aws_eip.gateway.*.id, count.index)
-tags = {
-        Environment = "Prod"
-        Application = "Testing"
-        Project = "CloudOps"
-        Owner = "mnageti@altimetrik.com"
-        Name = "tf_nat-gateaway"
-    }
 }
 
 resource "aws_route_table" "private" {
@@ -124,25 +72,11 @@ resource "aws_security_group" "lb" {
     protocol  = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-tags = {
-        Environment = "Prod"
-        Application = "Testing"
-        Project = "CloudOps"
-        Owner = "mnageti@altimetrik.com"
-        Name = "tf_my_sg"
-    }
 }
 resource "aws_lb" "default" {
   name            = "example-lb"
   subnets         = aws_subnet.public.*.id
   security_groups = [aws_security_group.lb.id]
- tags = {
-        Environment = "Prod"
-        Application = "Testing"
-        Project = "CloudOps"
-        Owner = "mnageti@altimetrik.com"
-        Name = "tf_my_load"
-    }
 }
 
 resource "aws_lb_target_group" "hello_world" {
@@ -209,20 +143,13 @@ resource "aws_security_group" "hello_world_task" {
 }
 resource "aws_ecs_cluster" "main" {
   name = "example-cluster"
-tags = {
-        Environment = "Prod"
-        Application = "Testing"
-        Project = "CloudOps"
-        Owner = "mnageti@altimetrik.com"
-        Name = "tf_my_cl"
-    }
 }
 
 resource "aws_ecs_service" "hello_world" {
   name            = "hello-world-service"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.hello_world.arn
-  desired_count   = 1
+  desired_count   = var.app_count
   launch_type     = "FARGATE"
 
   network_configuration {
@@ -235,13 +162,6 @@ resource "aws_ecs_service" "hello_world" {
     container_name   = "hello-world-app"
     container_port   = 3000
   }
- tags = {
-        Environment = "Prod"
-        Application = "Testing"
-        Project = "CloudOps"
-        Owner = "mnageti@altimetrik.com"
-        Name = "tf_my_service"
-    }
 
   depends_on = [aws_lb_listener.hello_world]
 }
