@@ -162,7 +162,7 @@ resource "aws_ecs_service" "hello_world" {
   name            = "hello-world-service"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.hello_world.arn
-  desired_count   = var.app_count
+  desired_count   = 1
   launch_type     = "FARGATE"
 
   network_configuration {
