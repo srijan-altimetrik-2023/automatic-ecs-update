@@ -11,92 +11,195 @@ provider "aws" {
   region = "ap-south-1"
 }
 
-resource "aws_vpc" "my_vpc" {
-  cidr_block = "10.0.0.0/16"
-  tags = {
-        Environment = "Prod"
-        Application = "Testing"
-        Project = "CloudOps"
-        Owner = "mnageti@altimetrik.com"
-        Name = "tf_my_vpc"
-    }
+data "aws_availability_zones" "available_zones" {
+  state = "available"
+}
+resource "aws_vpc" "default" {
+  cidr_block = "10.32.0.0/16"
+}
+resource "aws_subnet" "public" {
+  count                   = 2
+  cidr_block              = cidrsubnet(aws_vpc.default.cidr_block, 8, 2 + count.index)
+  availability_zone       = data.aws_availability_zones.available_zones.names[count.index]
+  vpc_id                  = aws_vpc.default.id
+  map_public_ip_on_launch = true
 }
 
-# Create an ECS cluster
-resource "aws_ecs_cluster" "my_cluster" {
-  name = "my-cluster"
-  tags = {
-        Environment = "Prod"
-        Application = "Testing"
-        Project = "CloudOps"
-        Owner = "mnageti@altimetrik.com"
-        Name = "tf_my_cluster"
-    }
+resource "aws_subnet" "private" {
+  count             = 2
+  cidr_block        = cidrsubnet(aws_vpc.default.cidr_block, 8, count.index)
+  availability_zone = data.aws_availability_zones.available_zones.names[count.index]
+  vpc_id            = aws_vpc.default.id
+}
+resource "aws_internet_gateway" "gateway" {
+  vpc_id = aws_vpc.default.id
 }
 
-# Create an EC2 instance
-resource "aws_instance" "instance" {
-  ami = "ami-057752b3f1d6c4d6c"
-  instance_type = "t2.micro"
-  subnet_id = "subnet-04be86837ecdfbbc0"
-  tags = {
-      Environment = "Prod"
-      Application = "Testing"
-      Project = "CloudOps"
-      Owner = "pawkumar@altimetrik.com"
-      Name = "SCP_test"
-  }
-  volume_tags = {
-      Environment = "Prod"
-      Application = "Testing"
-      Project = "CloudOps"
-      Owner = "pawkumar@altimetrik.com"
-      Name = "SCP_test"
-  }
-  vpc_security_group_ids = ["sg-01e24941edc06d626"]
-  lifecycle {
-    create_before_destroy = true
+resource "aws_route" "internet_access" {
+  route_table_id         = aws_vpc.default.main_route_table_id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.gateway.id
+}
+
+resource "aws_eip" "gateway" {
+  count      = 2
+  vpc        = true
+  depends_on = [aws_internet_gateway.gateway]
+}
+
+resource "aws_nat_gateway" "gateway" {
+  count         = 2
+  subnet_id     = element(aws_subnet.public.*.id, count.index)
+  allocation_id = element(aws_eip.gateway.*.id, count.index)
+}
+
+resource "aws_route_table" "private" {
+  count  = 2
+  vpc_id = aws_vpc.default.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = element(aws_nat_gateway.gateway.*.id, count.index)
   }
 }
 
-resource "aws_ecs_task_definition" "my_task_definition" {
-  family                   = "my-task-family"
- tags = {
-      Environment = "Prod"
-      Application = "Testing"
-      Project = "CloudOps"
-      Owner = "mnageti@altimetrik.com"
-      Name = "tf_my_task_definition"
+resource "aws_route_table_association" "private" {
+  count          = 2
+  subnet_id      = element(aws_subnet.private.*.id, count.index)
+  route_table_id = element(aws_route_table.private.*.id, count.index)
+}
+resource "aws_security_group" "lb" {
+  name        = "example-alb-security-group"
+  vpc_id      = aws_vpc.default.id
+
+  ingress {
+    protocol    = "tcp"
+    from_port   = 80
+    to_port     = 80
+    cidr_blocks = ["0.0.0.0/0"]
   }
-  container_definitions    = <<EOF
-  [
+
+  egress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+resource "aws_lb" "default" {
+  name            = "example-lb"
+  subnets         = aws_subnet.public.*.id
+  security_groups = [aws_security_group.lb.id]
+}
+
+resource "aws_lb_target_group" "hello_world" {
+  name        = "example-target-group"
+  port        = 80
+  protocol    = "HTTP"
+  vpc_id      = aws_vpc.default.id
+  target_type = "ip"
+}
+
+resource "aws_lb_listener" "hello_world" {
+  load_balancer_arn = aws_lb.default.id
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = aws_lb_target_group.hello_world.id
+    type             = "forward"
+  }
+}
+resource "aws_ecs_task_definition" "hello_world" {
+  family                   = "hello-world-app"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = 1024
+  memory                   = 2048
+
+  container_definitions = <<DEFINITION
+[
+  {
+    "image": "190109388255.dkr.ecr.ap-south-1.amazonaws.com/ami-nginx:latest",
+    "cpu": 1024,
+    "memory": 2048,
+    "name": "hello-world-app",
+    "networkMode": "awsvpc",
+    "portMappings": [
+      {
+        "containerPort": 3000,
+        "hostPort": 3000
+      }
+    ]
+  }
+]
+DEFINITION
+ execution_role_arn = aws_iam_role.task_execution_role.arn
+}
+resource "aws_security_group" "hello_world_task" {
+  name        = "example-task-security-group"
+  vpc_id      = aws_vpc.default.id
+
+  ingress {
+    protocol        = "tcp"
+    from_port       = 3000
+    to_port         = 3000
+    security_groups = [aws_security_group.lb.id]
+  }
+
+  egress {
+    protocol    = "-1"
+    from_port   = 0
+    to_port     = 0
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+resource "aws_ecs_cluster" "main" {
+  name = "example-cluster"
+}
+
+resource "aws_ecs_service" "hello_world" {
+  name            = "hello-world-service"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.hello_world.arn
+  desired_count   = var.app_count
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    security_groups = [aws_security_group.hello_world_task.id]
+    subnets         = aws_subnet.private.*.id
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.hello_world.id
+    container_name   = "hello-world-app"
+    container_port   = 3000
+  }
+
+  depends_on = [aws_lb_listener.hello_world]
+}
+
+
+resource "aws_iam_role" "task_execution_role" {
+   name = "task-execution-role"
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
     {
-      "name": "my-container",
-      "image": "190109388255.dkr.ecr.ap-south-1.amazonaws.com/ami-automate-latest:142",
-      "cpu": 256,
-      "memory": 512,
-      "portMappings": [
-        {
-          "containerPort": 80,
-          "hostPort": 80
-        }
-      ]
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
     }
   ]
-  EOF
 }
-resource "aws_ecs_service" "my_service" {
-  name            = "my-service"
-  cluster         = aws_ecs_cluster.my_cluster.id
-  task_definition = aws_ecs_task_definition.my_task_definition.arn
-  desired_count   = 1
-   tags = {
-      Environment = "Prod"
-      Application = "Testing"
-      Project = "CloudOps"
-      Owner = "mnageti@altimetrik.com"
-      Name = "tf_my_service"
-  }
-  
-  # Other service configuration options
+POLICY
+}
+
+# Attach policies to the task execution role (e.g., for logging)
+resource "aws_iam_role_policy_attachment" "task_execution_role_attachment" {
+  role       = aws_iam_role.task_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
