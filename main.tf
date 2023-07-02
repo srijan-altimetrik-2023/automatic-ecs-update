@@ -27,6 +27,13 @@ resource "aws_subnet" "public" {
   availability_zone       = data.aws_availability_zones.available_zones.names[count.index]
   vpc_id                  = aws_vpc.default.id
   map_public_ip_on_launch = true
+ tags = {
+        Environment = "Prod"
+        Application = "Testing"
+        Project = "CloudOps"
+        Owner = "mnageti@altimetrik.com"
+        Name = "tf_my_dubmer"
+    }
 }
 
 resource "aws_subnet" "private" {
@@ -34,15 +41,36 @@ resource "aws_subnet" "private" {
   cidr_block        = cidrsubnet(aws_vpc.default.cidr_block, 8, count.index)
   availability_zone = data.aws_availability_zones.available_zones.names[count.index]
   vpc_id            = aws_vpc.default.id
+tags = {
+        Environment = "Prod"
+        Application = "Testing"
+        Project = "CloudOps"
+        Owner = "mnageti@altimetrik.com"
+        Name = "tf_my_dubmer"
+    }
 }
 resource "aws_internet_gateway" "gateway" {
   vpc_id = aws_vpc.default.id
+tags = {
+        Environment = "Prod"
+        Application = "Testing"
+        Project = "CloudOps"
+        Owner = "mnageti@altimetrik.com"
+        Name = "tf_my_gt"
+    }
 }
 
 resource "aws_route" "internet_access" {
   route_table_id         = aws_vpc.default.main_route_table_id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.gateway.id
+tags = {
+        Environment = "Prod"
+        Application = "Testing"
+        Project = "CloudOps"
+        Owner = "mnageti@altimetrik.com"
+        Name = "tf_intert"
+    }
 }
 
 resource "aws_eip" "gateway" {
@@ -62,6 +90,13 @@ resource "aws_nat_gateway" "gateway" {
   count         = 2
   subnet_id     = element(aws_subnet.public.*.id, count.index)
   allocation_id = element(aws_eip.gateway.*.id, count.index)
+tags = {
+        Environment = "Prod"
+        Application = "Testing"
+        Project = "CloudOps"
+        Owner = "mnageti@altimetrik.com"
+        Name = "tf_nat-gateaway"
+    }
 }
 
 resource "aws_route_table" "private" {
@@ -96,6 +131,13 @@ resource "aws_security_group" "lb" {
     protocol  = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+tags = {
+        Environment = "Prod"
+        Application = "Testing"
+        Project = "CloudOps"
+        Owner = "mnageti@altimetrik.com"
+        Name = "tf_my_sg"
+    }
 }
 resource "aws_lb" "default" {
   name            = "example-lb"
@@ -174,6 +216,13 @@ resource "aws_security_group" "hello_world_task" {
 }
 resource "aws_ecs_cluster" "main" {
   name = "example-cluster"
+tags = {
+        Environment = "Prod"
+        Application = "Testing"
+        Project = "CloudOps"
+        Owner = "mnageti@altimetrik.com"
+        Name = "tf_my_cl"
+    }
 }
 
 resource "aws_ecs_service" "hello_world" {
