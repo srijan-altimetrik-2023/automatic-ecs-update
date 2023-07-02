@@ -107,7 +107,7 @@ resource "aws_ecs_task_definition" "hello_world" {
   container_definitions = <<DEFINITION
 [
   {
-    "image": "190109388255.dkr.ecr.ap-south-1.amazonaws.com/ami-automate-latest:45",
+    "image": "190109388255.dkr.ecr.ap-south-1.amazonaws.com/ami-automate-latest:latest",
     "cpu": 1024,
     "memory": 2048,
     "name": "hello-world-app",
