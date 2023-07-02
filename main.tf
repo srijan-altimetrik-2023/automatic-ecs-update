@@ -49,6 +49,13 @@ resource "aws_eip" "gateway" {
   count      = 2
   vpc        = true
   depends_on = [aws_internet_gateway.gateway]
+  tags = {
+        Environment = "Prod"
+        Application = "Testing"
+        Project = "CloudOps"
+        Owner = "mnageti@altimetrik.com"
+        Name = "tf_my_gatewaty"
+    }
 }
 
 resource "aws_nat_gateway" "gateway" {
@@ -94,6 +101,13 @@ resource "aws_lb" "default" {
   name            = "example-lb"
   subnets         = aws_subnet.public.*.id
   security_groups = [aws_security_group.lb.id]
+ tags = {
+        Environment = "Prod"
+        Application = "Testing"
+        Project = "CloudOps"
+        Owner = "mnageti@altimetrik.com"
+        Name = "tf_my_load"
+    }
 }
 
 resource "aws_lb_target_group" "hello_world" {
@@ -179,6 +193,13 @@ resource "aws_ecs_service" "hello_world" {
     container_name   = "hello-world-app"
     container_port   = 3000
   }
+ tags = {
+        Environment = "Prod"
+        Application = "Testing"
+        Project = "CloudOps"
+        Owner = "mnageti@altimetrik.com"
+        Name = "tf_my_service"
+    }
 
   depends_on = [aws_lb_listener.hello_world]
 }
