@@ -13,6 +13,13 @@ data "aws_availability_zones" "available_zones" {
 }
 resource "aws_vpc" "default" {
   cidr_block = "10.32.0.0/16"
+  tags = {
+        Environment = "Prod"
+        Application = "Testing"
+        Project = "CloudOps"
+        Owner = "mnageti@altimetrik.com"
+        Name = "tf_m_vpc"
+    }
 }
 resource "aws_subnet" "public" {
   count                   = 2
