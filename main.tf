@@ -114,7 +114,7 @@ resource "aws_ecs_task_definition" "hello_world" {
     "networkMode": "awsvpc",
     "portMappings": [
       {
-        "containerPort": 3000,
+        "containerPort": 80,
         "hostPort": 3000
       }
     ]
