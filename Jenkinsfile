@@ -54,7 +54,7 @@ pipeline {
 						writeFile file: 'lastDeployTime.txt', text: imageTagsWithTimestamps
 						sh 'git add lastDeployTime.txt'
 						sh "git commit -m 'testing'"
-						withCredentials([gitUsernamePassword(credentialsId: 'jenkins-srijan-2023', gitToolName: 'Default')]) {
+						withCredentials([gitUsernamePassword(credentialsId: 'Srijan-altimetrik', gitToolName: 'Default')]) {
 							sh 'git push --set-upstream origin main'
 						}
 					} else {
