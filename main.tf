@@ -121,7 +121,8 @@ resource "aws_ecs_task_definition" "hello_world" {
   }
 ]
 DEFINITION
- execution_role_arn = aws_iam_role.task_execution_role.arn
+ #execution_role_arn = aws_iam_role.task_execution_role.arn
+ execution_role_arn = arn:aws:iam::190109388255:role/ECS-role
 }
 resource "aws_security_group" "hello_world_task" {
   name        = "example-task-security-group"
@@ -167,7 +168,7 @@ resource "aws_ecs_service" "hello_world" {
 }
 
 
-resource "aws_iam_role" "task_execution_role" {
+/*resource "aws_iam_role" "task_execution_role" {
    name = "task-execution-role"
   assume_role_policy = <<POLICY
 {
@@ -189,4 +190,4 @@ POLICY
 resource "aws_iam_role_policy_attachment" "task_execution_role_attachment" {
   role       = aws_iam_role.task_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-}
+} */
