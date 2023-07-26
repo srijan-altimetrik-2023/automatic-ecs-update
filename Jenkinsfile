@@ -21,7 +21,7 @@ pipeline {
 		stage('SCM Checkout') {
 			steps {
 				git branch: 'main', // Specify the branch name here
-					credentialsId: 'jenkins-srijan-2023',
+					credentialsId: 'Srijan-altimetrik',
 					url: 'https://github.com/srijan-altimetrik-2023/automatic-ecs-update.git'
 			}
 		}
