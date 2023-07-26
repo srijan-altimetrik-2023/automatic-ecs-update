@@ -84,7 +84,7 @@ pipeline {
 		stage('App Deploy') {
 			steps {
 				sh 'terraform init -migrate-state '
-				#sh 'terraform taint aws_ecs_task_definition.hello_world'
+				//sh 'terraform taint aws_ecs_task_definition.hello_world'
 				sh 'terraform plan  -out tfplan'
 				sh 'terraform show -no-color tfplan > tfplan.txt'
 				sh "terraform apply tfplan"
