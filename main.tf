@@ -98,7 +98,7 @@ resource "aws_lb_listener" "hello_world" {
   }
 }
 resource "aws_ecs_task_definition" "hello_world" {
-  family                   = "hello-world-app"
+  family                   = "hello-world-app1"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 1024
@@ -110,7 +110,7 @@ resource "aws_ecs_task_definition" "hello_world" {
     "image": "190109388255.dkr.ecr.ap-south-1.amazonaws.com/ami-automate-latest:latest",
     "cpu": 1024,
     "memory": 2048,
-    "name": "hello-world-app",
+    "name": "hello-world-app1",
     "networkMode": "awsvpc",
     "portMappings": [
       {
