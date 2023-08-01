@@ -98,7 +98,7 @@ resource "aws_lb_listener" "hello_world" {
   }
 }
 resource "aws_ecs_task_definition" "hello_world" {
-  family                   = "hello-world-app1"
+  family                   = "hello-world-app"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 1024
@@ -110,7 +110,7 @@ resource "aws_ecs_task_definition" "hello_world" {
     "image": "190109388255.dkr.ecr.ap-south-1.amazonaws.com/ami-automate-latest:latest",
     "cpu": 1024,
     "memory": 2048,
-    "name": "hello-world-app1",
+    "name": "hello-world-app",
     "networkMode": "awsvpc",
     "portMappings": [
       {
@@ -160,7 +160,7 @@ resource "aws_ecs_service" "hello_world" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.hello_world.id
-    container_name   = "hello-world-app1"
+    container_name   = "hello-world-app"
     container_port   = 80
   }
 
